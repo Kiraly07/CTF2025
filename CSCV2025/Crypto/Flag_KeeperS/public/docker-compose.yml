@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  crypto-challenge:
+    build: .
+    ports:
+      - "1337:1337"
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:noexec,nosuid,size=100m

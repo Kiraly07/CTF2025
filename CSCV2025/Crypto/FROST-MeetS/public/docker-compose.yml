@@ -1,0 +1,45 @@
+services:
+  service:
+    build: .
+    image: trustguard-treasury:latest
+    container_name: trustguard-treasury
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      # TrustGuard Treasury - Configuration
+      SMART_ROUTING_PREFERENCE: 20
+      SESSION_OPTIMIZATION_TTL: 180
+      APPROVAL_TIMEOUT: 60
+      MAX_CONCURRENT_SESSIONS: 3
+      RATE_LIMIT_PER_MINUTE: 120
+      NONCE_CACHE_SIZE: 10000
+      LOG_LEVEL: INFO
+      SERVICE_NAME: "TrustGuard Treasury"
+      SERVICE_VERSION: "1.0.0"
+      FLAG: "CSCV2025{TEST_FLAG}"
+    tmpfs:
+      - /tmp/cache:rw,size=67108864,mode=1770
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2048M
+        reservations:
+          cpus: '1'
+          memory: 512M
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+    networks:
+      - trustguard-net
+
+networks:
+  trustguard-net:
+    driver: bridge
